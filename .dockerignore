@@ -1,2 +1,4 @@
 .gitignore
 Dockerfile
+resources/
+skaffold.yaml

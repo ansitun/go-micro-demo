@@ -5,27 +5,21 @@ package gomicrodemo
 
 import (
 	fmt "fmt"
-	proto "github.com/golang/protobuf/proto"
+	proto "google.golang.org/protobuf/proto"
 	math "math"
 )
 
 import (
 	context "context"
-	api "github.com/micro/micro/v3/service/api"
-	client "github.com/micro/micro/v3/service/client"
-	server "github.com/micro/micro/v3/service/server"
+	api "go-micro.dev/v4/api"
+	client "go-micro.dev/v4/client"
+	server "go-micro.dev/v4/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
-
-// This is a compile-time assertion to ensure that this generated file
-// is compatible with the proto package it is being compiled against.
-// A compilation error at this line likely means your copy of the
-// proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ api.Endpoint
@@ -83,7 +77,8 @@ type GoMicroDemo_ClientStreamService interface {
 	Context() context.Context
 	SendMsg(interface{}) error
 	RecvMsg(interface{}) error
-	CloseAndRecv() (*ClientStreamResponse, error)
+	CloseSend() error
+	Close() error
 	Send(*ClientStreamRequest) error
 }
 
@@ -91,13 +86,12 @@ type goMicroDemoServiceClientStream struct {
 	stream client.Stream
 }
 
-func (x *goMicroDemoServiceClientStream) CloseAndRecv() (*ClientStreamResponse, error) {
-	if err := x.stream.Close(); err != nil {
-		return nil, err
-	}
-	r := new(ClientStreamResponse)
-	err := x.RecvMsg(r)
-	return r, err
+func (x *goMicroDemoServiceClientStream) CloseSend() error {
+	return x.stream.CloseSend()
+}
+
+func (x *goMicroDemoServiceClientStream) Close() error {
+	return x.stream.Close()
 }
 
 func (x *goMicroDemoServiceClientStream) Context() context.Context {
@@ -132,12 +126,17 @@ type GoMicroDemo_ServerStreamService interface {
 	Context() context.Context
 	SendMsg(interface{}) error
 	RecvMsg(interface{}) error
+	CloseSend() error
 	Close() error
 	Recv() (*ServerStreamResponse, error)
 }
 
 type goMicroDemoServiceServerStream struct {
 	stream client.Stream
+}
+
+func (x *goMicroDemoServiceServerStream) CloseSend() error {
+	return x.stream.CloseSend()
 }
 
 func (x *goMicroDemoServiceServerStream) Close() error {
@@ -178,6 +177,7 @@ type GoMicroDemo_BidiStreamService interface {
 	Context() context.Context
 	SendMsg(interface{}) error
 	RecvMsg(interface{}) error
+	CloseSend() error
 	Close() error
 	Send(*BidiStreamRequest) error
 	Recv() (*BidiStreamResponse, error)
@@ -185,6 +185,10 @@ type GoMicroDemo_BidiStreamService interface {
 
 type goMicroDemoServiceBidiStream struct {
 	stream client.Stream
+}
+
+func (x *goMicroDemoServiceBidiStream) CloseSend() error {
+	return x.stream.CloseSend()
 }
 
 func (x *goMicroDemoServiceBidiStream) Close() error {
@@ -255,7 +259,7 @@ type GoMicroDemo_ClientStreamStream interface {
 	Context() context.Context
 	SendMsg(interface{}) error
 	RecvMsg(interface{}) error
-	SendAndClose(*ClientStreamResponse) error
+	Close() error
 	Recv() (*ClientStreamRequest, error)
 }
 
@@ -263,10 +267,7 @@ type goMicroDemoClientStreamStream struct {
 	stream server.Stream
 }
 
-func (x *goMicroDemoClientStreamStream) SendAndClose(in *ClientStreamResponse) error {
-	if err := x.SendMsg(in); err != nil {
-		return err
-	}
+func (x *goMicroDemoClientStreamStream) Close() error {
 	return x.stream.Close()
 }
 

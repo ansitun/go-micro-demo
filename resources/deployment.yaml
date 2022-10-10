@@ -1,0 +1,26 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-micro-demo
+  labels:
+    app: go-micro-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-micro-demo
+  template:
+    metadata:
+      labels:
+        app: go-micro-demo
+    spec:
+      containers:
+      - name: go-micro-demo
+        securityContext:
+          allowPrivilegeEscalation: false
+        image: go-micro-demo:latest
+        envFrom:
+        - configMapRef:
+            name: go-micro-demo-env

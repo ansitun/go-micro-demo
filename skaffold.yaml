@@ -1,0 +1,14 @@
+---
+
+apiVersion: skaffold/v2beta21
+kind: Config
+metadata:
+  name: go-micro-demo
+build:
+  artifacts:
+  - image: go-micro-demo
+deploy:
+  kubectl:
+    manifests:
+      - resources/*.yaml
+
