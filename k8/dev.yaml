@@ -7,14 +7,15 @@ metadata:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports:  '[{"HTTP":8090},{"HTTP":80},{"HTTP":8080},{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/backend-protocol-version: GRPC
+    alb.ingress.kubernetes.io/listen-ports:  '[{"HTTP":8090},{"HTTP":80},{"HTTPS":443}]'
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:021675034395:certificate/7cdc40f9-1ee9-41bb-bd87-aaedd7d33fda
 spec:
   rules:
     - host: payments-dev.tazapay.com
     - http:
         paths:
-          - path: /hello/*
+          - path: /hello
             backend:
               serviceName: go-micro-demo
               servicePort: 8090
@@ -25,7 +26,7 @@ metadata:
   name: go-micro-demo
 spec:
   ports:
-    - port: 8090
+    - port: 80
       targetPort: 8090
       protocol: TCP
   type: NodePort
@@ -52,7 +53,7 @@ spec:
         app: go-micro-demo
     spec:
       containers:
-        - image: 021675034395.dkr.ecr.ap-southeast-1.amazonaws.com/hello:latest3
+        - image: 021675034395.dkr.ecr.ap-southeast-1.amazonaws.com/hello:latest4
           imagePullPolicy: Always
           name: hello
           ports:
