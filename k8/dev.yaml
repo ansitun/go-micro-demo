@@ -7,7 +7,7 @@ metadata:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports:  '[{"HTTP":8090},{"HTTP":80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/listen-ports:  '[{"HTTP":8090},{"HTTP":80},{"HTTP":8080},{"HTTPS":443}]'
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:021675034395:certificate/7cdc40f9-1ee9-41bb-bd87-aaedd7d33fda
 spec:
   rules:
@@ -52,16 +52,16 @@ spec:
         app: go-micro-demo
     spec:
       containers:
-        - image: 021675034395.dkr.ecr.ap-southeast-1.amazonaws.com/hello:latest2
-          imagePullPolicy: IfNotPresent
-          name: go-micro-demo
+        - image: 021675034395.dkr.ecr.ap-southeast-1.amazonaws.com/hello:latest3
+          imagePullPolicy: Always
+          name: hello
           ports:
             - containerPort: 8090
               protocol: TCP
-              resources:
-                limits:
-                  cpu: "2"
-                  memory: 4Gi
-                requests:
-                  cpu: "2"
-                  memory: 4Gi
+          resources:
+            limits:
+              cpu: "2"
+              memory: 4Gi
+            requests:
+              cpu: "2"
+              memory: 4Gi
