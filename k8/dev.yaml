@@ -1,0 +1,67 @@
+# Ingress
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: go-micro-demo-ingress
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports:  '[{"HTTP":8090},{"HTTP":80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:021675034395:certificate/7cdc40f9-1ee9-41bb-bd87-aaedd7d33fda
+spec:
+  rules:
+    - host: payments-dev.tazapay.com
+    - http:
+        paths:
+          - path: /hello/*
+            backend:
+              serviceName: go-micro-demo
+              servicePort: 8090
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-micro-demo
+spec:
+  ports:
+    - port: 8090
+      targetPort: 8090
+      protocol: TCP
+  type: NodePort
+  selector:
+    app: go-micro-demo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-micro-demo
+spec:
+  selector:
+    matchLabels:
+      app: go-micro-demo
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: go-micro-demo
+    spec:
+      containers:
+        - image: 021675034395.dkr.ecr.ap-southeast-1.amazonaws.com/hello:latest2
+          imagePullPolicy: IfNotPresent
+          name: go-micro-demo
+          ports:
+            - containerPort: 8090
+              protocol: TCP
+              resources:
+                limits:
+                  cpu: "2"
+                  memory: 4Gi
+                requests:
+                  cpu: "2"
+                  memory: 4Gi
