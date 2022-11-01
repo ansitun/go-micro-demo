@@ -8,8 +8,6 @@ metadata:
   annotations:
     alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
     kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/healthcheck-path: /
-    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports:  '[{"HTTP":80},{"HTTPS":443}]'
@@ -23,9 +21,9 @@ spec:
           - backend:
               serviceName: go-micro-demo
               servicePort: use-annotation
-            path: /*
+            path: /hello
           - backend:
-              serviceName: grpcserver
+              serviceName: go-micro-demo
               servicePort: 8090
 ---
 # Service
@@ -36,7 +34,11 @@ metadata:
 spec:
   ports:
     - name: http
-      port: 8090
+      port: 80
+      targetPort: 8090
+      protocol: TCP
+    - name: https
+      port: 443
       targetPort: 8090
       protocol: TCP
   type: NodePort
