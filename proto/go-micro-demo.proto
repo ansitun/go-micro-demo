@@ -2,10 +2,16 @@ syntax = "proto3";
 
 package gomicrodemo;
 
+//import "google/api/annotations.proto";
+
 option go_package = "./proto;gomicrodemo";
 
 service GoMicroDemo {
-	rpc Call(CallRequest) returns (CallResponse) {}
+	rpc Call(CallRequest) returns (CallResponse) {
+//		option (google.api.http) = {
+//			get: "/api/call"
+//		};
+	}
 	rpc ClientStream(stream ClientStreamRequest) returns (ClientStreamResponse) {}
 	rpc ServerStream(ServerStreamRequest) returns (stream ServerStreamResponse) {}
 	rpc BidiStream(stream BidiStreamRequest) returns (stream BidiStreamResponse) {}

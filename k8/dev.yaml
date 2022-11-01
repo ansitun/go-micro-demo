@@ -4,7 +4,6 @@ kind: Ingress
 metadata:
   labels:
     app: go-micro-demo
-  namespace: go-micro-demo
   name: go-micro-demo-ingress
   annotations:
     alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
@@ -49,7 +48,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: go-micro-demo
-  namespace: go-micro-demo
 spec:
   selector:
     matchLabels:
