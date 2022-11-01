@@ -2,41 +2,54 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
+  labels:
+    app: go-micro-demo
+  namespace: go-micro-demo
   name: go-micro-demo-ingress
   annotations:
+    alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
     kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports:  '[{"HTTP":80},{"HTTPS":443}]'
     alb.ingress.kubernetes.io/backend-protocol-version: GRPC
-    alb.ingress.kubernetes.io/listen-ports:  '[{"HTTP":8090},{"HTTP":80},{"HTTPS":443}]'
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:021675034395:certificate/7cdc40f9-1ee9-41bb-bd87-aaedd7d33fda
 spec:
   rules:
     - host: payments-dev.tazapay.com
     - http:
         paths:
-          - path: /hello
-            backend:
+          - backend:
               serviceName: go-micro-demo
+              servicePort: use-annotation
+            path: /*
+          - backend:
+              serviceName: grpcserver
               servicePort: 8090
 ---
+# Service
 apiVersion: v1
 kind: Service
 metadata:
   name: go-micro-demo
 spec:
   ports:
-    - port: 80
+    - name: http
+      port: 8090
       targetPort: 8090
       protocol: TCP
   type: NodePort
   selector:
     app: go-micro-demo
 ---
+# Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: go-micro-demo
+  namespace: go-micro-demo
 spec:
   selector:
     matchLabels:
@@ -55,9 +68,10 @@ spec:
       containers:
         - image: 021675034395.dkr.ecr.ap-southeast-1.amazonaws.com/hello:latest4
           imagePullPolicy: Always
-          name: hello
+          name: go-micro-demo-hello
           ports:
-            - containerPort: 8090
+            - name: go-micro-demo
+              containerPort: 8090
               protocol: TCP
           resources:
             limits:
@@ -66,3 +80,4 @@ spec:
             requests:
               cpu: "2"
               memory: 4Gi
+      restartPolicy: Always
