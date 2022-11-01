@@ -19,4 +19,9 @@ FROM scratch
 COPY --from=builder /etc/ssl/certs /etc/ssl/certs
 COPY --from=builder /go/src/go-micro-demo/go-micro-demo /go-micro-demo
 ENTRYPOINT ["/go-micro-demo"]
+
+EXPOSE 80/tcp
+EXPOSE 8090/tcp
+EXPOSE 443/tcp
+
 CMD []
